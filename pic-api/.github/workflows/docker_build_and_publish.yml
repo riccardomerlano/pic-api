@@ -1,0 +1,63 @@
+name: Docker
+
+on:
+  workflow_run:
+    workflows: ["release"]
+    types:
+      - completed
+  issue_comment:                                     
+    types: 
+      - created
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  BUILD_COMMAND: '/build'
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Log in to GitHub Container Registry
+        if: ${{ github.event.workflow_run.conclusion == 'success' || (startsWith(github.event.comment.body, env.BUILD_COMMAND) && endsWith(github.event.comment.body, env.BUILD_COMMAND)) }}
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Docker metadata
+        if: ${{ github.event.workflow_run.conclusion == 'success' || (startsWith(github.event.comment.body, env.BUILD_COMMAND) && endsWith(github.event.comment.body, env.BUILD_COMMAND)) }}
+        id: meta
+        uses: docker/metadata-action@v5.0.0
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - name: Set up Docker Buildx
+        if: ${{ github.event.workflow_run.conclusion == 'success' || (startsWith(github.event.comment.body, env.BUILD_COMMAND) && endsWith(github.event.comment.body, env.BUILD_COMMAND)) }}
+        uses: docker/setup-buildx-action@v3
+
+      - name: Substitute PH in Dockerfile
+        if: ${{ github.event.workflow_run.conclusion == 'success' || (startsWith(github.event.comment.body, env.BUILD_COMMAND) && endsWith(github.event.comment.body, env.BUILD_COMMAND)) }}
+        working-directory: ./pic-api
+        shell: bash
+        env:
+          GITHUB_ACTIONS_ACCESS_ID_SECRET: ${{ secrets.AWS_ACCESS_ID }}
+          GITHUB_ACTIONS_SECRET_KEY_SECRET: ${{ secrets.AWS_SECRET_KEY }}
+        run: |
+          sed -i "s|GITHUB_ACTIONS_ACCESS_ID_SECRET|$GITHUB_ACTIONS_ACCESS_ID_SECRET|g" Dockerfile
+          sed -i "s|GITHUB_ACTIONS_SECRET_KEY_SECRET|$GITHUB_ACTIONS_SECRET_KEY_SECRET|g" Dockerfile
+
+      - name: Build and push Docker image
+        if: ${{ github.event.workflow_run.conclusion == 'success' || (startsWith(github.event.comment.body, env.BUILD_COMMAND) && endsWith(github.event.comment.body, env.BUILD_COMMAND)) }}
+        uses: docker/build-push-action@v4
+        with:
+          context: ./pic-api
+          file: ./pic-api/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/amd64, linux/arm64

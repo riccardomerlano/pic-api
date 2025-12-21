@@ -1,0 +1,21 @@
+name: Unittest
+
+on:
+  pull_request:
+    branches:
+    - main
+
+jobs:
+  python-unit-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: install dependecies
+        working-directory: ./pic-api
+        run: pip install -r requirements.txt
+
+      - name: perform testing
+        working-directory: ./pic-api
+        run: pytest tests
