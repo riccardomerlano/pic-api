@@ -1,0 +1,15 @@
+# TERRAFORM
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+
+# PYTHON
+*.pyc
+__pycache__/
+# VENV
+venv/
+
+# TEMP
+README.md
+**/README.md

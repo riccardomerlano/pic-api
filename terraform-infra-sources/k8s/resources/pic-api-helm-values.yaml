@@ -1,0 +1,22 @@
+name: pic-api
+namespace: pic-api
+serviceAccount:
+  name: pic-api-sa
+deployment:
+  containers:
+    - name: pic-container
+      image: pic-api
+      repository: ghcr.io/riccardomerlano
+      imagePullPolicy: IfNotPresent
+      tag: main
+      containerPort: 5000
+      livenessProbe:
+        enabled: true
+        path: /health
+        initialDelaySeconds: 5
+        periodSeconds: 10
+        timeoutSeconds: 1
+        successThreshold: 1
+        failureThreshold: 3
+hpa:
+  enabled: true

@@ -1,0 +1,48 @@
+{{- $chart_name := .Chart.Name }}
+{{- $chart_version := .Chart.Version | replace "+" "_" }}
+{{- $release_name := .Release.Name }}
+{{- $app_name := .Values.name }}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.name }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.name }}
+    chart: "{{ $chart_name }}-{{ $chart_version }}"
+spec:
+  {{ if .Values.deployment.replicas }}
+  replicas: {{ .Values.deployment.replicas }}
+  {{ end }}
+  selector:
+    matchLabels:
+      app: {{ .Values.name }}
+  serviceAccountName: {{ .Values.serviceAccount.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.name }}
+    spec:
+      containers:
+{{ range .Values.deployment.containers }}
+{{ if .name }}
+      - name: {{ .name }}
+{{ else }}
+      - name: {{ $app_name }}
+{{ end }}
+        image: "{{ .repository }}/{{ .image }}:{{ .tag }}"
+        imagePullPolicy: {{ .imagePullPolicy }}
+        ports:
+          - containerPort: {{ .containerPort }}
+        livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .containerPort }}
+            initialDelaySeconds: {{ .livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .livenessProbe.timeoutSeconds }}
+            successThreshold: {{ .livenessProbe.successThreshold }}
+            failureThreshold: {{ .livenessProbe.failureThreshold }}
+{{ end }}

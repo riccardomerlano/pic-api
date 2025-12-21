@@ -1,0 +1,8 @@
+apiVersion: v1
+name: helm-api-deployment
+description: A chart for api deployment
+version: 0.0.1
+keywords:
+  - deployment
+  - api
+  

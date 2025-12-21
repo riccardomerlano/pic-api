@@ -1,0 +1,26 @@
+{{- $chart_name := .Chart.Name }}
+{{- $chart_version := .Chart.Version | replace "+" "_" }}
+{{- $release_name := .Release.Name }}
+{{- $service_port := .Values.servicePort }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ .Values.name }}-svc"
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: {{ .Values.name }}
+    chart: "{{ $chart_name }}-{{ $chart_version }}"
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ .Values.name }}
+  ports:
+{{ range .Values.deployment.containers }}
+{{ if .containerPort }}
+    - name: http
+      protocol: TCP
+      targetPort: {{ .containerPort }}
+      port: {{ $service_port }}
+{{ end }}
+{{ end }}

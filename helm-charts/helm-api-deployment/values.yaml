@@ -1,0 +1,41 @@
+################################################################
+##        USE THIS AS A BASE FOR API DEPLOY DEFINITION        ##
+################################################################
+
+name: generic-api
+namespace: default
+serviceAccount:
+  name: null
+servicePort: 8080
+deployment:
+  replicas: null
+  containers:
+    - name: null
+      image: null
+      repository: ghcr.io/riccardomerlano
+      imagePullPolicy: IfNotPresent
+      tag: latest
+      containerPort: 5000
+      livenessProbe:
+        enabled: false
+        path: /health
+        initialDelaySeconds: 5
+        periodSeconds: 10
+        timeoutSeconds: 1
+        successThreshold: 1
+        failureThreshold: 3
+ingress:
+  enabled: false
+  paths:
+    - / 
+hpa:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 10
+  cpuUtilization: 80
+  memoryUtilization: 70
+  scaleDownStabilizationWindowSeconds: 600
+  scaleDownPeriodSeconds: 120
+  scaleUpPeriodSeconds: 10
+
+

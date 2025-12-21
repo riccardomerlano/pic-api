@@ -1,0 +1,46 @@
+{{- $chart_name := .Chart.Name }}
+{{- $chart_version := .Chart.Version | replace "+" "_" }}
+{{- $release_name := .Release.Name }}
+
+---
+{{ if .Values.hpa.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ .Values.name }}
+  labels:
+    app: {{ .Values.name }}
+    chart: "{{ $chart_name }}-{{ $chart_version }}"
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.name }}
+  minReplicas: {{ .Values.hpa.minReplicas }}
+  maxReplicas: {{ .Values.hpa.maxReplicas }}
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: {{ .Values.hpa.scaleDownStabilizationWindowSeconds }}
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: {{ .Values.hpa.scaleDownPeriodSeconds }}
+    scaleUp:
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: {{ .Values.hpa.scaleUpPeriodSeconds }}
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.hpa.cpuUtilization }}
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.hpa.memoryUtilization }}
+{{ end }}
