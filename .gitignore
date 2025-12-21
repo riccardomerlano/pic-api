@@ -13,3 +13,7 @@ venv/
 # TEMP
 README.md
 **/README.md
+
+# MISC
+.DS_Store
+**/.DS_Store
