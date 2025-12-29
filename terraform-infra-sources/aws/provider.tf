@@ -18,8 +18,35 @@ provider "aws" {
 
     default_tags {
         tags = {
-        Environment = "Techincal Challenge"
-        Company        = "-"
+            Region      = var.aws_region
+            Company     = "-"
+        }
+    }
+}
+
+provider "aws" {
+
+    access_key                  = "fake_access_key"
+    secret_key                  = "fake_secret_key"
+
+    alias                      = "primary_region_2"
+    region                      = replace(var.aws_region, "1", "2")
+
+    s3_use_path_style           = true
+    skip_credentials_validation = true
+    skip_metadata_api_check     = true
+    skip_requesting_account_id  = true
+
+    endpoints {
+        s3             = var.localstack_s3_endpoint
+        dynamodb       = var.localstack_endpoint
+        iam            = var.localstack_endpoint
+    }
+
+    default_tags {
+        tags = {
+            Region      = replace(var.aws_region, "1", "2")
+            Company     = "-"
         }
     }
 }
@@ -46,8 +73,8 @@ provider "aws" {
 
     default_tags {
         tags = {
-        Environment = "Techincal Challenge"
-        Company        = "-"
+            Region      = var.aws_alternative_region
+            Company     = "-"
         }
     }
 }

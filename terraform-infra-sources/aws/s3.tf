@@ -1,12 +1,48 @@
-module "pic-api-replicated-s3-bucket" {
-  providers = {
+module "pic-api-primary-s3-bucket" {
+  source  = "./resources/terraform-modules/s3-bucket"
+  bucket  = var.bucket_name
+  region  = var.aws_region
+}
+
+module "pic-api-secondary-s3-bucket" {
+  providers  = {
+    aws = aws.secondary_region
+  }
+  source  = "./resources/terraform-modules/s3-bucket"
+  bucket  = var.bucket_name
+  region  = var.aws_alternative_region
+}
+
+module "pic-api-bucket-replication" {
+  providers  = {
+    aws = aws
     aws.secondary_region = aws.secondary_region
   }
-  source               = "./resources/terraform-modules/s3-replication"
-  primary_region       = var.aws_region
-  secondary_region     = var.aws_alternative_region
-  bucket               = var.bucket_name
+  source                = "./resources/terraform-modules/s3-replication"
+  primary_bucket    = {
+    arn = module.pic-api-primary-s3-bucket.arn,
+    id = module.pic-api-primary-s3-bucket.id
+  }
+  secondary_bucket = {
+    arn  = module.pic-api-secondary-s3-bucket.arn,
+    id  = module.pic-api-secondary-s3-bucket.id
+  }
+
+  depends_on = [
+    module.pic-api-primary-s3-bucket,
+    module.pic-api-secondary-s3-bucket
+  ]
 }
+
+# module "pic-api-replicated-s3-bucket" {
+#   providers = {
+#     secondary-region = aws.secondary_region
+#   }
+#   source               = "./resources/terraform-modules/s3-replication"
+#   primary_region       = var.aws_region
+#   secondary_region     = var.aws_alternative_region
+#   bucket               = var.bucket_name
+# }
 
 
 ##########################################################

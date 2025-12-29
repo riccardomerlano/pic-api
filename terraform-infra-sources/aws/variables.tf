@@ -5,7 +5,7 @@ variable "aws_region" {
 
 variable "aws_alternative_region" {
   type        = string
-  default     = "us-east-1"
+  default     = "us-east-2"
 }
 
 variable "localstack_endpoint" {

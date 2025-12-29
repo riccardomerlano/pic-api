@@ -32,7 +32,7 @@ resource "aws_iam_policy" "primary_bucket_policy" {
       ],
       "Effect": "Allow",
       "Resource": [
-        "${aws_s3_bucket.primary_bucket.arn}"
+        "${var.primary_bucket.arn}"
       ]
     },
     {
@@ -44,7 +44,7 @@ resource "aws_iam_policy" "primary_bucket_policy" {
       ],
       "Effect": "Allow",
       "Resource": [
-        "${aws_s3_bucket.primary_bucket.arn}/*"
+        "${var.primary_bucket.arn}/*"
       ]
     },
     {
@@ -54,7 +54,7 @@ resource "aws_iam_policy" "primary_bucket_policy" {
         "s3:ReplicateTags"
       ],
       "Effect": "Allow",
-      "Resource": "${aws_s3_bucket.secondary_bucket.arn}/*"
+      "Resource": "${var.secondary_bucket.arn}/*"
     }
   ]
 }
@@ -104,7 +104,7 @@ resource "aws_iam_policy" "secondary_bucket_policy" {
       ],
       "Effect": "Allow",
       "Resource": [
-        "${aws_s3_bucket.secondary_bucket.arn}"
+        "${var.secondary_bucket.arn}"
       ]
     },
     {
@@ -115,7 +115,7 @@ resource "aws_iam_policy" "secondary_bucket_policy" {
       ],
       "Effect": "Allow",
       "Resource": [
-        "${aws_s3_bucket.secondary_bucket.arn}/*"
+        "${var.secondary_bucket.arn}/*"
       ]
     },
     {
@@ -125,7 +125,7 @@ resource "aws_iam_policy" "secondary_bucket_policy" {
         "s3:ReplicateTags"
       ],
       "Effect": "Allow",
-      "Resource": "${aws_s3_bucket.primary_bucket.arn}/*"
+      "Resource": "${var.primary_bucket.arn}/*"
     }
   ]
 }
