@@ -1,7 +1,7 @@
 # test_app.py
 import pytest
 from src.main import app
-from src.utils.env_loader import envs_dict
+from src.utils.env_loader import env_loader
 from moto import mock_aws
 import boto3
 
@@ -12,11 +12,11 @@ def client():
 
 @mock_aws
 def test_user_post_200(client):
-    s3 = boto3.client('s3', region_name=envs_dict["S3_REGION_1"])
-    s3.create_bucket(Bucket=f"{envs_dict['S3_BUCKET']}-{envs_dict['S3_REGION_1']}", CreateBucketConfiguration={'LocationConstraint': envs_dict['S3_REGION_1']})
-    dynamodb = boto3.client('dynamodb', region_name=envs_dict['DYNAMO_REGION_1'])
+    s3 = boto3.client('s3', region_name=env_loader.envs_dict["S3_REGION_1"])
+    s3.create_bucket(Bucket=f"{env_loader.envs_dict['S3_BUCKET']}-{env_loader.envs_dict['S3_REGION_1']}", CreateBucketConfiguration={'LocationConstraint': env_loader.envs_dict['S3_REGION_1']})
+    dynamodb = boto3.client('dynamodb', region_name=env_loader.envs_dict['DYNAMO_REGION_1'])
     dynamodb.create_table(
-        TableName=envs_dict['DYNAMODB_TABLE'],
+        TableName=env_loader.envs_dict['DYNAMODB_TABLE'],
         KeySchema=[{'AttributeName': 'name', 'KeyType': 'HASH'}],
         AttributeDefinitions=[{'AttributeName': 'name', 'AttributeType': 'S'}],
         BillingMode='PAY_PER_REQUEST'
@@ -36,11 +36,11 @@ def test_user_post_200(client):
 
 @mock_aws
 def test_user_post_400(client):
-    s3 = boto3.client('s3', region_name=envs_dict["S3_REGION_1"])
-    s3.create_bucket(Bucket=f"{envs_dict['S3_BUCKET']}-{envs_dict['S3_REGION_1']}", CreateBucketConfiguration={'LocationConstraint': envs_dict['S3_REGION_1']})
-    dynamodb = boto3.client('dynamodb', region_name=envs_dict['DYNAMO_REGION_1'])
+    s3 = boto3.client('s3', region_name=env_loader.envs_dict["S3_REGION_1"])
+    s3.create_bucket(Bucket=f"{env_loader.envs_dict['S3_BUCKET']}-{env_loader.envs_dict['S3_REGION_1']}", CreateBucketConfiguration={'LocationConstraint': env_loader.envs_dict['S3_REGION_1']})
+    dynamodb = boto3.client('dynamodb', region_name=env_loader.envs_dict['DYNAMO_REGION_1'])
     dynamodb.create_table(
-        TableName=envs_dict['DYNAMODB_TABLE'],
+        TableName=env_loader.envs_dict['DYNAMODB_TABLE'],
         KeySchema=[{'AttributeName': 'name', 'KeyType': 'HASH'}],
         AttributeDefinitions=[{'AttributeName': 'name', 'AttributeType': 'S'}],
         BillingMode='PAY_PER_REQUEST'
@@ -72,15 +72,15 @@ def test_user_post_500(client):
 
 @mock_aws
 def test_user_get_200(client):
-    dynamodb = boto3.client('dynamodb', region_name=envs_dict['DYNAMO_REGION_1'])
+    dynamodb = boto3.client('dynamodb', region_name=env_loader.envs_dict['DYNAMO_REGION_1'])
     dynamodb.create_table(
-        TableName=envs_dict['DYNAMODB_TABLE'],
+        TableName=env_loader.envs_dict['DYNAMODB_TABLE'],
         KeySchema=[{'AttributeName': 'name', 'KeyType': 'HASH'}],
         AttributeDefinitions=[{'AttributeName': 'name', 'AttributeType': 'S'}],
         BillingMode='PAY_PER_REQUEST'
     )
     response = dynamodb.put_item(
-        TableName=envs_dict['DYNAMODB_TABLE'], Item={'name':{'S':'test-user'},'email':{'S':'test@email.com'},'avatar_url':{'S':f"https://{envs_dict['S3_BUCKET']}-{envs_dict['S3_REGION_1']}.s3.{envs_dict['S3_REGION_1']}.amazonaws.com/test-user/a1.jpg"}}
+        TableName=env_loader.envs_dict['DYNAMODB_TABLE'], Item={'name':{'S':'test-user'},'email':{'S':'test@email.com'},'avatar_url':{'S':f"https://{env_loader.envs_dict['S3_BUCKET']}-{env_loader.envs_dict['S3_REGION_1']}.s3.{env_loader.envs_dict['S3_REGION_1']}.amazonaws.com/test-user/a1.jpg"}}
     )
 
     response = client.get('/api/v1/user?name=test-user')
@@ -89,7 +89,7 @@ def test_user_get_200(client):
     assert response.get_json() == {
         'name': 'test-user',
         'email': 'test@email.com',
-        'avatar_url': f'https://{envs_dict["S3_BUCKET"]}-{envs_dict["S3_REGION_1"]}.s3.{envs_dict["S3_REGION_1"]}.amazonaws.com/test-user/a1.jpg'
+        'avatar_url': f'https://{env_loader.envs_dict["S3_BUCKET"]}-{env_loader.envs_dict["S3_REGION_1"]}.s3.{env_loader.envs_dict["S3_REGION_1"]}.amazonaws.com/test-user/a1.jpg'
     }
 
 @mock_aws
@@ -101,9 +101,9 @@ def test_user_get_500(client):
 
 @mock_aws
 def test_user_get_404(client):
-    dynamodb = boto3.client('dynamodb', region_name=envs_dict['DYNAMO_REGION_1'])
+    dynamodb = boto3.client('dynamodb', region_name=env_loader.envs_dict['DYNAMO_REGION_1'])
     dynamodb.create_table(
-        TableName=envs_dict['DYNAMODB_TABLE'],
+        TableName=env_loader.envs_dict['DYNAMODB_TABLE'],
         KeySchema=[{'AttributeName': 'name', 'KeyType': 'HASH'}],
         AttributeDefinitions=[{'AttributeName': 'name', 'AttributeType': 'S'}],
         BillingMode='PAY_PER_REQUEST'
@@ -116,15 +116,15 @@ def test_user_get_404(client):
 
 @mock_aws
 def test_users_200(client):
-    dynamodb = boto3.client('dynamodb', region_name=envs_dict['DYNAMO_REGION_1'])
+    dynamodb = boto3.client('dynamodb', region_name=env_loader.envs_dict['DYNAMO_REGION_1'])
     dynamodb.create_table(
-        TableName=envs_dict['DYNAMODB_TABLE'],
+        TableName=env_loader.envs_dict['DYNAMODB_TABLE'],
         KeySchema=[{'AttributeName': 'name', 'KeyType': 'HASH'}],
         AttributeDefinitions=[{'AttributeName': 'name', 'AttributeType': 'S'}],
         BillingMode='PAY_PER_REQUEST'
     )
     response = dynamodb.put_item(
-        TableName=envs_dict['DYNAMODB_TABLE'], Item={'name':{'S':'test-user'},'email':{'S':'test@email.com'},'avatar_url':{'S':f"https://{envs_dict['S3_BUCKET']}-{envs_dict['S3_REGION_1']}.s3.{envs_dict['S3_REGION_1']}.amazonaws.com/test-user/a1.jpg"}}
+        TableName=env_loader.envs_dict['DYNAMODB_TABLE'], Item={'name':{'S':'test-user'},'email':{'S':'test@email.com'},'avatar_url':{'S':f"https://{env_loader.envs_dict['S3_BUCKET']}-{env_loader.envs_dict['S3_REGION_1']}.s3.{env_loader.envs_dict['S3_REGION_1']}.amazonaws.com/test-user/a1.jpg"}}
     )
 
     response = client.get('/api/v1/users')
@@ -133,7 +133,7 @@ def test_users_200(client):
     assert response.get_json() == [{
         'name': 'test-user',
         'email': 'test@email.com',
-        'avatar_url': f'https://{envs_dict["S3_BUCKET"]}-{envs_dict["S3_REGION_1"]}.s3.{envs_dict["S3_REGION_1"]}.amazonaws.com/test-user/a1.jpg'
+        'avatar_url': f'https://{env_loader.envs_dict["S3_BUCKET"]}-{env_loader.envs_dict["S3_REGION_1"]}.s3.{env_loader.envs_dict["S3_REGION_1"]}.amazonaws.com/test-user/a1.jpg'
     }]
     
 @mock_aws

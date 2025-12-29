@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify
 import logging
 from aws_integrations.s3 import get_working_s3_client
 from aws_integrations.dynamodb import get_dynamodb_table
-from utils.env_loader import localstack
+from utils.env_loader import env_loader
 
 health_routes = Blueprint("health_routes", __name__)
 
@@ -13,7 +13,7 @@ logger = logging.getLogger('PIC-API')
 # in other cases it will return a 500
 @health_routes.route("", methods=["GET"])
 def health():
-    if localstack:
+    if env_loader.localstack:
         try:
             table = get_dynamodb_table()
         except Exception as e:
