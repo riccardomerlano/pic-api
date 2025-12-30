@@ -1,11 +1,7 @@
-variable "primary_region" {
-  type    = string
+variable "primary_bucket" {
+  type    = map
 }
 
-variable "secondary_region" {
-  type    = string
-}
-
-variable "bucket" {
-  type    = string
+variable "secondary_bucket" {
+  type    = map
 }

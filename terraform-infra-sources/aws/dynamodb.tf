@@ -14,7 +14,7 @@ resource "aws_dynamodb_table" "pic_api_users_information_table" {
         Service = "dynamodb"
     }
 
-    deletion_protection_enabled = true
+    # deletion_protection_enabled = true
 
     replica {
         region_name    = replace(var.aws_region, "1", "2")

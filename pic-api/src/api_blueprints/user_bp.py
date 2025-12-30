@@ -4,7 +4,7 @@ from werkzeug.utils import secure_filename
 import logging
 from aws_integrations.s3 import get_working_s3_client, get_s3_info
 from aws_integrations.dynamodb import get_dynamodb_table
-from utils.env_loader import envs_dict
+from utils.env_loader import env_loader
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
@@ -63,7 +63,7 @@ def user():
         else:
             logger.info("Missing or not allowed avatar in calling /user: fallback to default image")
             avatar = None
-            filename = envs_dict["DEFAULT_IMAGE_SUBPATH"]
+            filename = env_loader.envs_dict["DEFAULT_IMAGE_SUBPATH"]
             
         s3_path = f"https://{s3_bucket}.s3.{s3_region}.amazonaws.com/{filename}"
 
